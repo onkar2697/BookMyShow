@@ -1,0 +1,5 @@
+rootProject.name = 'bookmyshow-microservices'
+
+include 'service-registry'
+include 'user-service'
+
