@@ -4,6 +4,7 @@ package org.example.bookmyshow.userservice.service;
 import org.example.bookmyshow.userservice.dto.UserRequestDTO;
 import org.example.bookmyshow.userservice.dto.UserResponseDTO;
 import org.example.bookmyshow.userservice.dto.UserUpdateRequestDTO;
+import org.example.bookmyshow.userservice.entity.Role;
 import org.example.bookmyshow.userservice.entity.User;
 import org.example.bookmyshow.userservice.exception.DuplicateEmailException;
 import org.example.bookmyshow.userservice.exception.UserNotFoundException;
@@ -11,6 +12,8 @@ import org.example.bookmyshow.userservice.mapper.UserMapper;
 import org.example.bookmyshow.userservice.repository.UserRepository;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 
 @Service
@@ -35,11 +38,19 @@ public class UserService {
 
             User user = userMapper.toEntity(request);
             user.setPassword(passwordEncoder.encode(request.getPassword()));
+            user.setRole(Role.USER);
 
             User savedUser = userRepository.save(user);
 
             return userMapper.toResponseDTO(savedUser);
-        }
+    }
+
+    public List<UserResponseDTO> getAllUsers() {
+        return userRepository.findAll()
+                .stream()
+                .map(userMapper::toResponseDTO)
+                .toList();
+    }
 
     public UserResponseDTO getUserById(Long id) {
         User user = userRepository.findById(id)
@@ -90,5 +101,16 @@ public class UserService {
         // Convert entity to response DTO
         return userMapper.toResponseDTO(savedUser);
     }
+
+    public void deleteUser(Long id) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() ->
+                        new UserNotFoundException(
+                                "User not found with id: " + id
+                        ));
+
+        userRepository.delete(user);
+    }
+
 
 }
