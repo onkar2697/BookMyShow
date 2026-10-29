@@ -13,12 +13,7 @@ public class UserResponseDTO {
 
     private LocalDateTime createTime;
 
-    public UserResponseDTO(Long id, String name, String email, Role role, LocalDateTime createTime) {
-        this.id = id;
-        this.name = name;
-        this.email = email;
-        this.role = role;
-        this.createTime = createTime;
+    public UserResponseDTO() {
     }
 
     public Long getId() {

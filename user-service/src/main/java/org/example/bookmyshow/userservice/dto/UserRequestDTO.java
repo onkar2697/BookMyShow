@@ -14,14 +14,6 @@ public class UserRequestDTO {
     @Email
     private String email;
 
-    public UserRequestDTO() {
-    }
-
-    public UserRequestDTO(String name, String password, String email) {
-        this.name = name;
-        this.password = password;
-        this.email = email;
-    }
 
     public String getName() {
         return name;
