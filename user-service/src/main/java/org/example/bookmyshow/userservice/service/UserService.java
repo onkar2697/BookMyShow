@@ -14,6 +14,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -31,6 +32,7 @@ public class UserService {
        this.userRepository=userRepository;
     }
 
+    @Transactional
     public UserResponseDTO createUser(UserRequestDTO request){
             if (userRepository.existsByEmailIgnoreCase(request.getEmail())) {
                 throw new DuplicateEmailException(
@@ -47,10 +49,12 @@ public class UserService {
             return userMapper.toResponseDTO(savedUser);
     }
 
+    @Transactional(readOnly = true)
     public Page<UserResponseDTO> getAllUsers(Pageable pageable) {
         return userRepository.findAll(pageable).map(userMapper::toResponseDTO);
     }
 
+    @Transactional(readOnly = true)
     public UserResponseDTO getUserById(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() ->
@@ -61,6 +65,7 @@ public class UserService {
         return userMapper.toResponseDTO(user);
     }
 
+    @Transactional(readOnly = true)
     public UserResponseDTO getUserByEmail(String email) {
         User user = userRepository.findByEmailIgnoreCase(email)
                 .orElseThrow(() ->
@@ -71,6 +76,7 @@ public class UserService {
         return userMapper.toResponseDTO(user);
     }
 
+    @Transactional
     public UserResponseDTO updateUser(Long id, UserUpdateRequestDTO request) {
 
         User user = userRepository.findById(id)
@@ -101,6 +107,7 @@ public class UserService {
         return userMapper.toResponseDTO(savedUser);
     }
 
+    @Transactional
     public void deleteUser(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() ->

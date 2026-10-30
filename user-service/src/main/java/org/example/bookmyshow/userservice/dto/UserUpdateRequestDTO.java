@@ -8,9 +8,9 @@ public class UserUpdateRequestDTO {
 
     @NotBlank
     private String name;
-    @NotBlank
 
-    @NotBlank @Email
+
+    @NotBlank @Email @Size(max=100)
     private String email;
 
     public UserUpdateRequestDTO() {
