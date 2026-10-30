@@ -10,6 +10,8 @@ import org.example.bookmyshow.userservice.exception.DuplicateEmailException;
 import org.example.bookmyshow.userservice.exception.UserNotFoundException;
 import org.example.bookmyshow.userservice.mapper.UserMapper;
 import org.example.bookmyshow.userservice.repository.UserRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -45,11 +47,8 @@ public class UserService {
             return userMapper.toResponseDTO(savedUser);
     }
 
-    public List<UserResponseDTO> getAllUsers() {
-        return userRepository.findAll()
-                .stream()
-                .map(userMapper::toResponseDTO)
-                .toList();
+    public Page<UserResponseDTO> getAllUsers(Pageable pageable) {
+        return userRepository.findAll(pageable).map(userMapper::toResponseDTO);
     }
 
     public UserResponseDTO getUserById(Long id) {

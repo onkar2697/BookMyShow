@@ -6,6 +6,8 @@ import org.example.bookmyshow.userservice.dto.UserRequestDTO;
 import org.example.bookmyshow.userservice.dto.UserResponseDTO;
 import org.example.bookmyshow.userservice.dto.UserUpdateRequestDTO;
 import org.example.bookmyshow.userservice.service.UserService;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,8 +26,8 @@ public class UserController {
     }
 
     @GetMapping
-    public List<UserResponseDTO> getAllUsers() {
-        return userService.getAllUsers();
+    public Page<UserResponseDTO> getAllUsers(Pageable pageable) {
+        return userService.getAllUsers(pageable);
     }
 
     @PostMapping
