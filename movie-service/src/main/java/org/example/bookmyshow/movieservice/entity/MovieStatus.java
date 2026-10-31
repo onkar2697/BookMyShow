@@ -1,4 +1,9 @@
 package org.example.bookmyshow.movieservice.entity;
 
-public class MovieStatus {
+public enum MovieStatus {
+    UPCOMING,
+    RELEASED,
+    ARCHIVED;
+
+
 }
