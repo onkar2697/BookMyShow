@@ -8,6 +8,8 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface MovieRepository extends JpaRepository<Movie,Long> {
 
-    Page<Movie> findTitleContainingIgnoreCase(String title, Pageable pageable);
+    Page<Movie> findByTitleContainingIgnoreCase(
+            String title, Pageable pageable
+    );
 
 }
