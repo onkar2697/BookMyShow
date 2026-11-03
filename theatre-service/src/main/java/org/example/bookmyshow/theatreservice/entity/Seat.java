@@ -23,7 +23,7 @@ import lombok.Setter;
 )
 @Getter
 @Setter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class Seat {
 
     @Id

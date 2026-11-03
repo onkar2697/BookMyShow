@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Table(name = "screen_types")
 @Getter
 @Setter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class ScreenType {
 
     @Id

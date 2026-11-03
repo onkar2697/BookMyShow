@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Table(name = "cities")
 @Getter
 @Setter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class City {
 
     @Id

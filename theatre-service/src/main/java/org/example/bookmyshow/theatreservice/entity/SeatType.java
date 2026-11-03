@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 @Table(name = "seat_types")
 @Getter
 @Setter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor
 public class SeatType {
 
     @Id
