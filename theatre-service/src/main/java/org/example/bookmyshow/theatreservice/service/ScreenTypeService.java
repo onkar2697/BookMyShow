@@ -6,9 +6,8 @@ import org.example.bookmyshow.theatreservice.dto.ScreenTypeRequestDTO;
 import org.example.bookmyshow.theatreservice.dto.ScreenTypeResponseDTO;
 import org.example.bookmyshow.theatreservice.entity.ScreenType;
 import org.example.bookmyshow.theatreservice.mapper.ScreenTypeMapper;
-import org.example.bookmyshow.theatreservice.repository.CityRepository;
 import org.example.bookmyshow.theatreservice.repository.ScreenTypeRepository;
-import org.example.bookmyshow.theatreservice.repository.TheatreRepository;
+import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
@@ -20,8 +19,7 @@ import org.springframework.web.server.ResponseStatusException;
 public class ScreenTypeService {
 
     private final ScreenTypeRepository screenTypeRepository;
-    private final TheatreRepository theatreRepository;
-    private final CityRepository cityRepository;
+
 
     @Transactional
     public ScreenTypeResponseDTO createScreenType(ScreenTypeRequestDTO dto) {
@@ -40,9 +38,57 @@ public class ScreenTypeService {
         return ScreenTypeMapper.toResponseDTO(savedScreenType);
     }
 
+    @Transactional(readOnly = true)
+    public ScreenTypeResponseDTO getScreenTypeById(Long screenTypeId) {
 
-//    getScreenTypeById(Long screenTypeId)
-//    getAllScreenTypes(Pageable pageable)
-//    updateScreenType(Long screenTypeId, ScreenTypeRequestDTO dto)
-//    deactivateScreenType(Long screenTypeId)
+        ScreenType screenType = screenTypeRepository.findById(screenTypeId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Screen type with id: " + screenTypeId + " does not exist"
+                ));
+
+        return ScreenTypeMapper.toResponseDTO(screenType);
+    }
+
+    @Transactional(readOnly = true)
+    public Page<ScreenTypeResponseDTO> getAllScreenTypes(Pageable pageable){
+        return  screenTypeRepository.findAll(pageable).map(ScreenTypeMapper::toResponseDTO);
+    }
+
+    @Transactional
+    public ScreenTypeResponseDTO updateScreenType(
+            Long screenTypeId, ScreenTypeRequestDTO dto) {
+
+        ScreenType screenType = screenTypeRepository.findById(screenTypeId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Screen type with id: " + screenTypeId + " does not exist"
+                ));
+
+        screenTypeRepository.findByCodeIgnoreCase(dto.getCode())
+                .ifPresent(existing -> {
+                    if (!existing.getId().equals(screenTypeId)) {
+                        throw new ResponseStatusException(
+                                HttpStatus.CONFLICT,
+                                "Screen type already exists with code: " + dto.getCode()
+                        );
+                    }
+                });
+
+        ScreenTypeMapper.updateEntity(screenType, dto);
+
+        return ScreenTypeMapper.toResponseDTO(screenType);
+    }
+
+    @Transactional
+    public void deactivateScreenType(Long screenTypeId) {
+
+        ScreenType screenType = screenTypeRepository.findById(screenTypeId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Screen type with id: " + screenTypeId + " does not exist"
+                ));
+
+        screenType.setActive(false);
+    }
 }
