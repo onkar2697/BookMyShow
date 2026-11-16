@@ -6,6 +6,8 @@ import org.example.bookmyshow.theatreservice.dto.CityResponseDTO;
 import org.example.bookmyshow.theatreservice.entity.City;
 import org.example.bookmyshow.theatreservice.mapper.CityMapper;
 import org.example.bookmyshow.theatreservice.repository.CityRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,12 +58,13 @@ public class CityService {
     }
 
     @Transactional(readOnly = true)
-    public List<CityResponseDTO> getAllCities() {
+    public Page<CityResponseDTO> getAllCities(Pageable pageable) {
 
-        return cityRepository.findAll()
-                .stream()
-                .map(CityMapper::toResponseDTO)
-                .toList();
+//        return cityRepository.findAll()
+//                .stream()
+//                .map(CityMapper::toResponseDTO)
+//                .toList();
+        return  cityRepository.findAll(pageable).map(CityMapper::toResponseDTO);
     }
 
     @Transactional
