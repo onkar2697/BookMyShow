@@ -11,6 +11,8 @@ import org.example.bookmyshow.theatreservice.mapper.ScreenMapper;
 import org.example.bookmyshow.theatreservice.repository.ScreenRepository;
 import org.example.bookmyshow.theatreservice.repository.ScreenTypeRepository;
 import org.example.bookmyshow.theatreservice.repository.TheatreRepository;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -66,6 +68,38 @@ public class ScreenService {
         Screen savedScreen = screenRepository.save(screen);
 
         return ScreenMapper.toResponseDTO(savedScreen);
+    }
+
+    @Transactional(readOnly = true)
+    public ScreenResponseDTO getScreenById(Long screenId) {
+
+        Screen screen = screenRepository.findById(screenId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Screen not found with ID: " + screenId
+                ));
+
+        return ScreenMapper.toResponseDTO(screen);
+    }
+
+    @Transactional(readOnly = true)  // get all screen
+    public Page<ScreenResponseDTO> getAllScreens(Pageable pageable) {
+        return screenRepository.findAll(pageable)
+                .map(ScreenMapper::toResponseDTO);
+    }
+
+    @Transactional(readOnly = true)  //get the screen by theatreid
+    public Page<ScreenResponseDTO> getScreensByTheatre(Long theatreId, Pageable pageable) {
+
+        if (!theatreRepository.existsById(theatreId)) {
+            throw new ResponseStatusException(
+                    HttpStatus.NOT_FOUND,
+                    "Theatre not found with ID: " + theatreId
+            );
+        }
+
+        return screenRepository.findByTheatre_Id(theatreId,pageable)
+                .map(ScreenMapper::toResponseDTO);
     }
 
 }
