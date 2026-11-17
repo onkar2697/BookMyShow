@@ -17,4 +17,5 @@ public interface SeatRepository extends JpaRepository<Seat,Long> {
     boolean existsByScreen_IdAndRowNumberAndColumnNumber(
             Long screenId, Integer rowNumber, Integer columnNumber
     );
+    boolean existsByScreen_IdAndActiveTrue(Long screenId);
 }

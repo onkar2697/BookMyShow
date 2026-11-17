@@ -10,6 +10,7 @@ import org.example.bookmyshow.theatreservice.entity.Theatre;
 import org.example.bookmyshow.theatreservice.mapper.ScreenMapper;
 import org.example.bookmyshow.theatreservice.repository.ScreenRepository;
 import org.example.bookmyshow.theatreservice.repository.ScreenTypeRepository;
+import org.example.bookmyshow.theatreservice.repository.SeatRepository;
 import org.example.bookmyshow.theatreservice.repository.TheatreRepository;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -24,6 +25,7 @@ public class ScreenService {
     private final ScreenTypeRepository screenTypeRepository;
     private final TheatreRepository theatreRepository;
     private final ScreenRepository screenRepository;
+    private final SeatRepository seatRepository;
 
     @Transactional
     public ScreenResponseDTO createScreen(ScreenRequestDTO dto) {
@@ -100,6 +102,75 @@ public class ScreenService {
 
         return screenRepository.findByTheatre_Id(theatreId,pageable)
                 .map(ScreenMapper::toResponseDTO);
+    }
+
+    @Transactional
+    public ScreenResponseDTO updateScreen(
+            Long screenId, ScreenRequestDTO dto) {
+
+        Screen screen = screenRepository.findById(screenId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Screen not found with ID: " + screenId
+                ));
+
+        Theatre theatre = theatreRepository.findById(dto.getTheatreId())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Theatre not found with ID: " + dto.getTheatreId()
+                ));
+
+        if (!theatre.isActive()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Cannot assign screen to an inactive theatre"
+            );
+        }
+
+        ScreenType screenType = screenTypeRepository.findById(dto.getScreenTypeId())
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Screen type not found with ID: " + dto.getScreenTypeId()
+                ));
+
+        if (!screenType.isActive()) {
+            throw new ResponseStatusException(
+                    HttpStatus.BAD_REQUEST,
+                    "Selected screen type is inactive"
+            );
+        }
+
+        if (screenRepository.existsByNameIgnoreCaseAndTheatre_IdAndIdNot(
+                dto.getName(), dto.getTheatreId(), screenId)) {
+
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Another screen with this name already exists in this theatre"
+            );
+        }
+
+        ScreenMapper.updateEntity(screen, dto, theatre, screenType);
+
+        return ScreenMapper.toResponseDTO(screen);
+    }
+
+    @Transactional
+    public void deactivateScreen(Long screenId) {
+
+        Screen screen = screenRepository.findById(screenId)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Screen not found with ID: " + screenId
+                ));
+
+        if (seatRepository.existsByScreen_IdAndActiveTrue(screenId)) {
+            throw new ResponseStatusException(
+                    HttpStatus.CONFLICT,
+                    "Cannot deactivate screen while active seats exist"
+            );
+        }
+
+        screen.setActive(false);
     }
 
 }
