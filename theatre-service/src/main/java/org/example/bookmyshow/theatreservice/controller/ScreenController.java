@@ -5,7 +5,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.bookmyshow.theatreservice.dto.ScreenRequestDTO;
 import org.example.bookmyshow.theatreservice.dto.ScreenResponseDTO;
-import org.example.bookmyshow.theatreservice.repository.ScreenRepository;
 import org.example.bookmyshow.theatreservice.service.ScreenService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -23,7 +22,7 @@ public class ScreenController {
     public ResponseEntity<ScreenResponseDTO> createScreen(@Valid @RequestBody ScreenRequestDTO request) {
         return ResponseEntity.status(HttpStatus.CREATED).body(screenService.createScreen(request));
     }
-    
+
     @GetMapping
     public ResponseEntity<Page<ScreenResponseDTO>> getAllScreens(Pageable pageable) {
         return ResponseEntity.status(HttpStatus.OK).body(screenService.getAllScreens(pageable));
@@ -42,7 +41,17 @@ public class ScreenController {
     @PatchMapping("/{id}/deactivate")
     public ResponseEntity<Void>  deactivateScreen(@PathVariable Long id) {
         screenService.deactivateScreen(id);
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/theatre/{theatreId}")
+    public ResponseEntity<Page<ScreenResponseDTO>> getScreensByTheatre(
+            @PathVariable Long theatreId,
+            Pageable pageable) {
+
+        return ResponseEntity.ok(
+                screenService.getScreensByTheatre(theatreId, pageable)
+        );
     }
 
 }
