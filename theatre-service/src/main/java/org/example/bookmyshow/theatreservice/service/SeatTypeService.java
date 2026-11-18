@@ -37,7 +37,20 @@ public class SeatTypeService {
 
     @Transactional(readOnly = true)
     public Page<SeatTypeResponseDTO> getAllSeatTypes(Pageable pageable) {
-
+        return seatTypeRepository.findAll(pageable).map(SeatTypeMapper::toResponseDTO);
     }
+
+    @Transactional(readOnly = true)
+    public SeatTypeResponseDTO getSeatTypeById(Long id) {
+        SeatType seatType = seatTypeRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Seat type with id " + id + " not found"
+                ));
+
+        return SeatTypeMapper.toResponseDTO(seatType);
+    }
+
+
 
 }
