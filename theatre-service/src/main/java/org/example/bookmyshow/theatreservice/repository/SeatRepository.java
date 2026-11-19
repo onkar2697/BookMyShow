@@ -1,12 +1,16 @@
+
 package org.example.bookmyshow.theatreservice.repository;
 
 import org.example.bookmyshow.theatreservice.entity.Seat;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface SeatRepository extends JpaRepository<Seat,Long> {
-    List<Seat> findByScreen_Id(Long screenId);
+public interface SeatRepository extends JpaRepository<Seat, Long> {
+
+    Page<Seat> findByScreen_Id(Long screenId, Pageable pageable);
 
     List<Seat> findByScreen_IdAndActiveTrue(Long screenId);
 
@@ -14,8 +18,17 @@ public interface SeatRepository extends JpaRepository<Seat,Long> {
             Long screenId, String seatNumber
     );
 
+    boolean existsByScreen_IdAndSeatNumberIgnoreCaseAndIdNot(
+            Long screenId, String seatNumber, Long seatId
+    );
+
     boolean existsByScreen_IdAndRowNumberAndColumnNumber(
             Long screenId, Integer rowNumber, Integer columnNumber
     );
+
+    boolean existsByScreen_IdAndRowNumberAndColumnNumberAndIdNot(
+            Long screenId, Integer rowNumber, Integer columnNumber, Long seatId
+    );
+
     boolean existsByScreen_IdAndActiveTrue(Long screenId);
 }
