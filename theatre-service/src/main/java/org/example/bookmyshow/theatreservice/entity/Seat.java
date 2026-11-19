@@ -17,7 +17,7 @@ import lombok.Setter;
                 ),
                 @UniqueConstraint(
                         name = "uk_seat_screen_position",
-                        columnNames = {"screen_id", "row_number", "column_number"}
+                        columnNames = {"screen_id", "seat_row", "seat_column"}
                 )
         }
 )
@@ -34,10 +34,10 @@ public class Seat {
     @Column(nullable = false, length = 20)
     private String seatNumber;
 
-    @Column(name = "row_number", nullable = false)
+    @Column(name = "seat_row", nullable = false)
     private Integer rowNumber;
 
-    @Column(name = "column_number", nullable = false)
+    @Column(name = "seat_column", nullable = false)
     private Integer columnNumber;
 
     @Column(nullable = false)
