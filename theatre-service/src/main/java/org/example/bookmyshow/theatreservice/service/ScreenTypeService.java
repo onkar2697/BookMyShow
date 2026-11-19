@@ -91,4 +91,6 @@ public class ScreenTypeService {
 
         screenType.setActive(false);
     }
+
+
 }

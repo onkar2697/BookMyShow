@@ -5,7 +5,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.example.bookmyshow.theatreservice.dto.SeatTypeRequestDTO;
 import org.example.bookmyshow.theatreservice.dto.SeatTypeResponseDTO;
-import org.example.bookmyshow.theatreservice.entity.SeatType;
 import org.example.bookmyshow.theatreservice.service.SeatTypeService;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -31,8 +30,21 @@ public class SeatTypeController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<SeatTypeResponseDTO> getSeatType(@PathVariable long id) {
+    public ResponseEntity<SeatTypeResponseDTO> getSeatType(@PathVariable Long id) {
         return ResponseEntity.status(HttpStatus.OK).body(seatTypeService.getSeatTypeById(id));
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<SeatTypeResponseDTO> updateSeatType(
+            @PathVariable Long id,
+            @Valid @RequestBody SeatTypeRequestDTO request) {
+        return ResponseEntity.status(HttpStatus.OK).body(seatTypeService.updateSeatType(id, request));
+    }
+
+    @PatchMapping("/{id}/deactivate")
+    public ResponseEntity<Void>  deactivateSeatType(@PathVariable Long id) {
+        seatTypeService.deactivateSeatType(id);
+        return ResponseEntity.noContent().build();
     }
 }
 

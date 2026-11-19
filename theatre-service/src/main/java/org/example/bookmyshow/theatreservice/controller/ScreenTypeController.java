@@ -30,13 +30,13 @@ public class ScreenTypeController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ScreenTypeResponseDTO> getScreenType(@PathVariable long id) {
+    public ResponseEntity<ScreenTypeResponseDTO> getScreenType(@PathVariable Long id) {
         return ResponseEntity.status(HttpStatus.OK).body(screenTypeService.getScreenTypeById(id));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<ScreenTypeResponseDTO> updateScreenType(
-            @PathVariable long id,
+            @PathVariable Long id,
             @Valid
             @RequestBody ScreenTypeRequestDTO request) {
         return ResponseEntity.status(HttpStatus.OK).body(screenTypeService.updateScreenType(id, request));

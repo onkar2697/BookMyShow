@@ -51,6 +51,36 @@ public class SeatTypeService {
         return SeatTypeMapper.toResponseDTO(seatType);
     }
 
+    @Transactional
+    public SeatTypeResponseDTO updateSeatType(Long id, SeatTypeRequestDTO dto){
 
+        SeatType seatType= seatTypeRepository.findById(id)
+                .orElseThrow(()-> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Seat type with id "+ id +" not found"
+                ));
+
+        seatTypeRepository.findByCodeIgnoreCase(dto.getCode())
+                        .ifPresent(existing ->{
+                            if(!existing.getId().equals(id)){
+                                throw new ResponseStatusException(
+                                        HttpStatus.CONFLICT,
+                                        "Seat type alrrady exists with code : " +dto.getCode()
+                                );
+                            }
+                        });
+        SeatTypeMapper.updateEntity(seatType,dto);
+        return SeatTypeMapper.toResponseDTO(seatType);
+    }
+
+    @Transactional
+    public void deactivateSeatType(Long id) {
+        SeatType seatType = seatTypeRepository.findById(id)
+                .orElseThrow(() -> new ResponseStatusException(
+                        HttpStatus.NOT_FOUND,
+                        "Seat type with id " + id + " not found"
+                ));
+        seatType.setActive(false);
+    }
 
 }
