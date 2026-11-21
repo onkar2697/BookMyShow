@@ -19,7 +19,6 @@ public class Show {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    // References to other microservices
     private Long movieId;
 
     private Long screenId;
@@ -32,8 +31,10 @@ public class Show {
 
     private String language;
 
+    private Integer bufferMinutes = 15;
+
     @Enumerated(EnumType.STRING)
-    private ShowStatus status;
+    private ShowStatus status = ShowStatus.SCHEDULED;
 
     @Version
     private Long version;
@@ -45,10 +46,14 @@ public class Show {
     @PrePersist
     public void onCreate() {
         createdAt = LocalDateTime.now();
-        updatedAt = LocalDateTime.now();
+        updatedAt = createdAt;
 
         if (status == null) {
             status = ShowStatus.SCHEDULED;
+        }
+
+        if (bufferMinutes == null) {
+            bufferMinutes = 15;
         }
     }
 
