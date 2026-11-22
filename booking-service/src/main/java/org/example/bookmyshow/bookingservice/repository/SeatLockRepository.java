@@ -7,20 +7,20 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
 
 public interface SeatLockRepository extends JpaRepository<SeatLock, Long> {
 
-    Optional<SeatLock> findByShowIdAndSeatIdAndStatusAndExpiresAtAfter(
+    List<SeatLock> findAllByShowIdAndSeatIdAndStatusAndExpiresAtAfter(
             Long showId,
             Long seatId,
             SeatLockStatus status,
             LocalDateTime currentTime
     );
 
-    List<SeatLock> findAllByUserIdAndStatus(
+    List<SeatLock> findAllByUserIdAndStatusAndExpiresAtAfter(
             Long userId,
-            SeatLockStatus status
+            SeatLockStatus status,
+            LocalDateTime currentTime
     );
 
     List<SeatLock> findAllByExpiresAtBeforeAndStatus(
