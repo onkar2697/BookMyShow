@@ -1,11 +1,12 @@
-
 package org.example.bookmyshow.bookingservice.entity;
 
-import org.example.bookmyshow.bookingservice.enums.BookingStatus;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.example.bookmyshow.bookingservice.enums.BookingStatus;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -26,12 +27,16 @@ public class Booking {
     @Column(nullable = false, unique = true)
     private String bookingReference;
 
+    @NotNull
     @Column(nullable = false)
     private Long userId;
 
+    @NotNull
     @Column(nullable = false)
     private Long showId;
 
+    @NotNull
+    @PositiveOrZero
     @Column(nullable = false, precision = 10, scale = 2)
     private BigDecimal totalAmount;
 
@@ -42,7 +47,7 @@ public class Booking {
     @Column(nullable = false)
     private LocalDateTime bookingTime;
 
-    @Column(nullable = false, updatable = false)
+    @Column(nullable = false)
     private LocalDateTime createdAt;
 
     private LocalDateTime updatedAt;
@@ -54,23 +59,23 @@ public class Booking {
     )
     private List<BookingSeat> bookingSeats = new ArrayList<>();
 
+    public void addBookingSeat(BookingSeat bookingSeat) {
+        bookingSeats.add(bookingSeat);
+        bookingSeat.setBooking(this);
+    }
+
     @PrePersist
     public void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.bookingTime = LocalDateTime.now();
+        bookingTime = LocalDateTime.now();
+        createdAt = LocalDateTime.now();
 
-        if (this.status == null) {
-            this.status = BookingStatus.PENDING;
+        if (status == null) {
+            status = BookingStatus.PENDING;
         }
     }
 
     @PreUpdate
     public void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
-
-    public void addBookingSeat(BookingSeat bookingSeat) {
-        bookingSeats.add(bookingSeat);
-        bookingSeat.setBooking(this);
+        updatedAt = LocalDateTime.now();
     }
 }

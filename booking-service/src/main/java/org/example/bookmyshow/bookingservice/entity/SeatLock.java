@@ -1,11 +1,11 @@
-
 package org.example.bookmyshow.bookingservice.entity;
 
-import org.example.bookmyshow.bookingservice.enums.SeatLockStatus;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.example.bookmyshow.bookingservice.enums.SeatLockStatus;
 
 import java.time.LocalDateTime;
 
@@ -20,12 +20,15 @@ public class SeatLock {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @NotNull
     @Column(nullable = false)
     private Long showId;
 
+    @NotNull
     @Column(nullable = false)
     private Long seatId;
 
+    @NotNull
     @Column(nullable = false)
     private Long userId;
 
@@ -43,14 +46,11 @@ public class SeatLock {
 
     @PrePersist
     public void onCreate() {
-        this.lockedAt = LocalDateTime.now();
+        lockedAt = LocalDateTime.now();
+        expiresAt = lockedAt.plusMinutes(5);
 
-        if (this.expiresAt == null) {
-            this.expiresAt = LocalDateTime.now().plusMinutes(5);
-        }
-
-        if (this.status == null) {
-            this.status = SeatLockStatus.LOCKED;
+        if (status == null) {
+            status = SeatLockStatus.LOCKED;
         }
     }
 }
