@@ -1,3 +1,4 @@
+
 package org.example.bookmyshow.bookingservice.service;
 
 import lombok.RequiredArgsConstructor;
@@ -12,6 +13,7 @@ import org.example.bookmyshow.bookingservice.mapper.BookingMapper;
 import org.example.bookmyshow.bookingservice.repository.BookingRepository;
 import org.example.bookmyshow.bookingservice.repository.BookingSeatRepository;
 import org.example.bookmyshow.bookingservice.repository.SeatLockRepository;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -20,17 +22,19 @@ import org.springframework.transaction.annotation.Transactional;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
 public class BookingService {
 
-   private final BookingRepository bookingRepository;
-   private final BookingMapper bookingMapper;
-   private final BookingSeatRepository bookingSeatRepository;
-   private final SeatLockRepository seatLockRepository;
+    private final BookingRepository bookingRepository;
+    private final BookingMapper bookingMapper;
+    private final BookingSeatRepository bookingSeatRepository;
+    private final SeatLockRepository seatLockRepository;
 
+    // Get booking by ID
     @Transactional(readOnly = true)
     public BookingResponse getBookingById(Long id) {
 
@@ -41,6 +45,7 @@ public class BookingService {
         return bookingMapper.toBookingResponse(booking);
     }
 
+    // Get booking by reference
     @Transactional(readOnly = true)
     public BookingResponse getBookingByReference(String reference) {
 
@@ -51,6 +56,7 @@ public class BookingService {
         return bookingMapper.toBookingResponse(booking);
     }
 
+    // Get bookings by user ID with pagination
     @Transactional(readOnly = true)
     public Page<BookingResponse> getBookingsByUserId(
             Long userId, Pageable pageable) {
@@ -60,6 +66,17 @@ public class BookingService {
                 .map(bookingMapper::toBookingResponse);
     }
 
+    // Validate duplicate seats
+    private void validateDuplicateSeats(List<Long> seatIds) {
+
+        if (seatIds.stream().distinct().count() != seatIds.size()) {
+            throw new IllegalArgumentException(
+                    "Duplicate seats are not allowed"
+            );
+        }
+    }
+
+    // Validate seat availability
     private void validateSeatAvailability(
             Long showId,
             Long userId,
@@ -103,7 +120,11 @@ public class BookingService {
         }
     }
 
-    private void createSeatLocks(Long showId, Long userId, List<Long> seatIds) {
+    // Create seat locks
+    private void createSeatLocks(
+            Long showId,
+            Long userId,
+            List<Long> seatIds) {
 
         LocalDateTime now = LocalDateTime.now();
 
@@ -119,40 +140,23 @@ public class BookingService {
 
             seatLockRepository.save(seatLock);
         }
-
     }
 
+    // Create booking
     @Transactional
     public BookingResponse createBooking(
             BookingRequest request,
-            java.util.Map<Long, BigDecimal> seatPrices) {
+            Map<Long, BigDecimal> seatPrices) {
 
-        // 1. Validate request
-        validateBookingRequest(request);
+        // 1. Validate duplicate seats
+        validateDuplicateSeats(request.getSeatIds());
 
-        // 2. Check seat availability
-        validateSeatAvailability(
-                request.getShowId(),
-                request.getUserId(),
-                request.getSeatIds()
-        );
-
-        // 3. Create seat locks
-        createSeatLocks(
-                request.getShowId(),
-                request.getUserId(),
-                request.getSeatIds()
-        );
-
-        // 4. Create booking
-        Booking booking = new Booking();
-        booking.setBookingReference(UUID.randomUUID().toString());
-        booking.setUserId(request.getUserId());
-        booking.setShowId(request.getShowId());
-        booking.setStatus(BookingStatus.PENDING);
-
-        // 5. Create booking seats and calculate total
-        BigDecimal totalAmount = BigDecimal.ZERO;
+        // 2. Validate seat prices
+        if (seatPrices == null) {
+            throw new IllegalArgumentException(
+                    "Seat prices are required"
+            );
+        }
 
         for (Long seatId : request.getSeatIds()) {
 
@@ -163,6 +167,35 @@ public class BookingService {
                         "Invalid price for seat: " + seatId
                 );
             }
+        }
+
+        // 3. Check seat availability
+        validateSeatAvailability(
+                request.getShowId(),
+                request.getUserId(),
+                request.getSeatIds()
+        );
+
+        // 4. Create seat locks
+        createSeatLocks(
+                request.getShowId(),
+                request.getUserId(),
+                request.getSeatIds()
+        );
+
+        // 5. Create booking
+        Booking booking = new Booking();
+        booking.setBookingReference(UUID.randomUUID().toString());
+        booking.setUserId(request.getUserId());
+        booking.setShowId(request.getShowId());
+        booking.setStatus(BookingStatus.PENDING);
+
+        // 6. Create booking seats and calculate total
+        BigDecimal totalAmount = BigDecimal.ZERO;
+
+        for (Long seatId : request.getSeatIds()) {
+
+            BigDecimal price = seatPrices.get(seatId);
 
             BookingSeat bookingSeat = new BookingSeat();
             bookingSeat.setSeatId(seatId);
@@ -174,14 +207,13 @@ public class BookingService {
             totalAmount = totalAmount.add(price);
         }
 
-        // 6. Set total amount
+        // 7. Set total amount
         booking.setTotalAmount(totalAmount);
 
-        // 7. Save booking (booking seats saved through cascade)
+        // 8. Save booking
         Booking savedBooking = bookingRepository.save(booking);
 
-        // 8. Return response
+        // 9. Return response
         return bookingMapper.toBookingResponse(savedBooking);
     }
-
 }
