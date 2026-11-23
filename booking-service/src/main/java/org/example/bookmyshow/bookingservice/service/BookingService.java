@@ -1,7 +1,6 @@
 package org.example.bookmyshow.bookingservice.service;
 
 import lombok.RequiredArgsConstructor;
-import org.example.bookmyshow.bookingservice.dto.BookingRequest;
 import org.example.bookmyshow.bookingservice.dto.BookingResponse;
 import org.example.bookmyshow.bookingservice.entity.Booking;
 import org.example.bookmyshow.bookingservice.entity.SeatLock;
