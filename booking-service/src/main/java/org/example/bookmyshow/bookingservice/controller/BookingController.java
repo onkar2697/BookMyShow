@@ -35,7 +35,7 @@ public class BookingController {
         );
     }
 
-    // Get bookings by user ID with pagination
+    // Get bookings by user ID
     @GetMapping("/user/{userId}")
     public ResponseEntity<Page<BookingResponse>> getBookingsByUserId(
             @PathVariable Long userId,
