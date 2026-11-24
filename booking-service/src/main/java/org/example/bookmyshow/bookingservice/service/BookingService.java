@@ -9,6 +9,10 @@ import org.example.bookmyshow.bookingservice.entity.BookingSeat;
 import org.example.bookmyshow.bookingservice.entity.SeatLock;
 import org.example.bookmyshow.bookingservice.enums.BookingStatus;
 import org.example.bookmyshow.bookingservice.enums.SeatLockStatus;
+import org.example.bookmyshow.bookingservice.exception.BookingNotFoundException;
+import org.example.bookmyshow.bookingservice.exception.InvalidBookingRequestException;
+import org.example.bookmyshow.bookingservice.exception.SeatAlreadyBookedException;
+import org.example.bookmyshow.bookingservice.exception.SeatLockedException;
 import org.example.bookmyshow.bookingservice.mapper.BookingMapper;
 import org.example.bookmyshow.bookingservice.repository.BookingRepository;
 import org.example.bookmyshow.bookingservice.repository.BookingSeatRepository;
@@ -40,7 +44,7 @@ public class BookingService {
 
         Booking booking = bookingRepository.findById(id)
                 .orElseThrow(() ->
-                        new RuntimeException("Booking not found with id: " + id));
+                        new BookingNotFoundException("Booking not found with id: " + id));
 
         return bookingMapper.toBookingResponse(booking);
     }
@@ -51,7 +55,7 @@ public class BookingService {
 
         Booking booking = bookingRepository.findByBookingReference(reference)
                 .orElseThrow(() ->
-                        new RuntimeException("Booking not found: " + reference));
+                        new BookingNotFoundException("Booking not found: " + reference));
 
         return bookingMapper.toBookingResponse(booking);
     }
@@ -70,7 +74,7 @@ public class BookingService {
     private void validateDuplicateSeats(List<Long> seatIds) {
 
         if (seatIds.stream().distinct().count() != seatIds.size()) {
-            throw new IllegalArgumentException(
+            throw new InvalidBookingRequestException(
                     "Duplicate seats are not allowed"
             );
         }
@@ -94,7 +98,7 @@ public class BookingService {
                             );
 
             if (alreadyBooked) {
-                throw new IllegalStateException(
+                throw new SeatAlreadyBookedException(
                         "Seat " + seatId + " is already booked"
                 );
             }
@@ -113,7 +117,7 @@ public class BookingService {
                     .anyMatch(lock -> !lock.getUserId().equals(userId));
 
             if (lockedByAnotherUser) {
-                throw new IllegalStateException(
+                throw new SeatLockedException(
                         "Seat " + seatId + " is currently locked by another user"
                 );
             }
@@ -153,7 +157,7 @@ public class BookingService {
 
         //Validate seat prices
         if (seatPrices == null) {
-            throw new IllegalArgumentException(
+            throw new InvalidBookingRequestException(
                     "Seat prices are required"
             );
         }
@@ -163,7 +167,7 @@ public class BookingService {
             BigDecimal price = seatPrices.get(seatId);
 
             if (price == null || price.signum() < 0) {
-                throw new IllegalArgumentException(
+                throw new InvalidBookingRequestException(
                         "Invalid price for seat: " + seatId
                 );
             }
