@@ -66,7 +66,7 @@ public class BookingService {
                 .map(bookingMapper::toBookingResponse);
     }
 
-    // Validate duplicate seats
+    // Validate the duplicate seats
     private void validateDuplicateSeats(List<Long> seatIds) {
 
         if (seatIds.stream().distinct().count() != seatIds.size()) {
@@ -148,10 +148,10 @@ public class BookingService {
             BookingRequest request,
             Map<Long, BigDecimal> seatPrices) {
 
-        // 1. Validate duplicate seats
+        // Validate duplicate seats
         validateDuplicateSeats(request.getSeatIds());
 
-        // 2. Validate seat prices
+        //Validate seat prices
         if (seatPrices == null) {
             throw new IllegalArgumentException(
                     "Seat prices are required"
@@ -169,28 +169,28 @@ public class BookingService {
             }
         }
 
-        // 3. Check seat availability
+        //Check seat availability
         validateSeatAvailability(
                 request.getShowId(),
                 request.getUserId(),
                 request.getSeatIds()
         );
 
-        // 4. Create seat locks
+        //Create seat locks
         createSeatLocks(
                 request.getShowId(),
                 request.getUserId(),
                 request.getSeatIds()
         );
 
-        // 5. Create booking
+        //Create booking
         Booking booking = new Booking();
         booking.setBookingReference(UUID.randomUUID().toString());
         booking.setUserId(request.getUserId());
         booking.setShowId(request.getShowId());
         booking.setStatus(BookingStatus.PENDING);
 
-        // 6. Create booking seats and calculate total
+        // Create booking seats and calculate total
         BigDecimal totalAmount = BigDecimal.ZERO;
 
         for (Long seatId : request.getSeatIds()) {
