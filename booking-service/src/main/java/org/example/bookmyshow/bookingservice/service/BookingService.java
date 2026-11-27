@@ -3,9 +3,11 @@ package org.example.bookmyshow.bookingservice.service;
 
 import lombok.RequiredArgsConstructor;
 import org.example.bookmyshow.bookingservice.client.ShowClient;
+import org.example.bookmyshow.bookingservice.client.UserClient;
 import org.example.bookmyshow.bookingservice.dto.BookingRequest;
 import org.example.bookmyshow.bookingservice.dto.BookingResponse;
 import org.example.bookmyshow.bookingservice.dto.ShowResponse;
+import org.example.bookmyshow.bookingservice.dto.UserResponse;
 import org.example.bookmyshow.bookingservice.entity.Booking;
 import org.example.bookmyshow.bookingservice.entity.BookingSeat;
 import org.example.bookmyshow.bookingservice.entity.SeatLock;
@@ -40,6 +42,7 @@ public class BookingService {
     private final BookingSeatRepository bookingSeatRepository;
     private final SeatLockRepository seatLockRepository;
     private final ShowClient showClient;
+    private final UserClient userClient;
 
     // Get booking by ID
     @Transactional(readOnly = true)
@@ -158,6 +161,7 @@ public class BookingService {
         // Validate duplicate seats
         validateDuplicateSeats(request.getSeatIds());
 
+        UserResponse user = userClient.getUserById(request.getUserId());
         ShowResponse show = showClient.getShowById(request.getShowId());
 
         if (!"SCHEDULED".equalsIgnoreCase(show.getStatus())) {
